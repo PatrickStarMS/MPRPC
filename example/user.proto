@@ -1,0 +1,32 @@
+syntax ="proto3";
+package fixbug;
+option cc_generic_services =true;
+
+//打包错误代码，其他的类可以直接使用
+message ResultCode
+{
+    int32 errcode=1;
+    bytes errmsg =2;
+}
+
+//要调用远程的方法：1.远程方法的名字 2.远程方法的参数 3.远程方法的返回值
+
+//打包Login函数需要的参数
+message LoginRequest
+{
+    bytes name = 1;
+    bytes pwd=2;
+}
+
+//打包Login函数的返回参数
+message LoginResponse
+{
+    ResultCode result=1;
+    bool success=2;
+}
+
+//定义服务类以及rpc方法（名字与本地调用的login方法不一致业务所谓，最好保持一致，方便记忆调用）
+service UserServiceRpc
+{
+    rpc Login(LoginRequest) returns(LoginResponse);
+}

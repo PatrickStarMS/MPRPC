@@ -1,0 +1,64 @@
+syntax = "proto3";//声明protobuf版本
+
+package fixbug;//声明了代码所在的包（对于c++来说是namespace）
+
+//开通，生成服务类与rpc方法描述，默认不生成
+option cc_generic_services = true;
+
+message ResultCode
+{
+    
+    int32 errcode=1;//4字节整数 
+    bytes errmsg=2;
+}
+
+//数据 列表 映射表
+//登录请求消息类型 name pwd，在protobuf中都是message
+message LoginRequest
+{
+    bytes name=1;
+    bytes pwd=2;//这里不是初始化，而是定义第几个字段
+    // map<int32,string> test = 3;
+}
+
+//定义登录响应消息类型
+message LoginResponse
+{
+    ResultCode result=1;
+    bool success=2;
+}
+
+
+message GetFriendListRequest
+{
+    uint32 userid = 1;
+}
+
+message User
+{
+    bytes name = 1;
+    uint32 age =2;
+    enum Sex
+    {
+        MAN = 0;//枚举从0开始
+        WOMAN =1;
+    }
+    Sex sex =3;//只有定义序号的才算成员变量
+}
+
+message GetFriendListResponse
+{
+    ResultCode result = 1;
+    //列表
+    repeated User friendList =2;//repeated定义一个列表类型
+}
+
+//在protobuf中，怎么描述rpc方法类型-service---上面定义的是消息类型
+//服务类以及里面包含方法，生成c++之后message和service都是class
+service UserServiceRpc
+{
+    //定义了一个LOgin 的rpc方法，protobuf不支持rpc功能，这只是对rpc方法的描述，通过这个描述就可以做rpc请求
+    //所携带的参数的序列化与反序列化,Login是另一端方法的名字，LoginRequest是传过去的参数，LoginResponse是返回的参数
+    rpc Login(LoginRequest) returns(LoginResponse);
+    rpc GetFriendLists(GetFriendListRequest) returns(GetFriendListResponse);
+}
